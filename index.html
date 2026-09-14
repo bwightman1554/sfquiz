@@ -583,17 +583,17 @@
   // hand-edit it as the date approaches. Compares calendar dates only
   // (both sides at local midnight), not exact timestamps, so "T-1 day"
   // reads correctly for the entire day before the exam rather than
-  // flipping partway through based on what hour it is.
+  // flipping partway through based on what hour it is. Deliberately does
+  // NOT roll forward to next year once the date passes -- this is a
+  // one-time exam, not an assumed annual event, so once it's over the
+  // pill just disappears rather than silently counting down to a "next
+  // sitting" that may not exist.
   function updateCountdown() {
     const pill = document.getElementById('countdown-pill');
     if (!pill) return;
     const now = new Date();
-    let examDate = new Date(now.getFullYear(), 8, 28); // month is 0-indexed: 8 = September
+    const examDate = new Date(now.getFullYear(), 8, 28); // month is 0-indexed: 8 = September
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    if (examDate < today) {
-      // already passed this year -- assume next year's sitting
-      examDate = new Date(now.getFullYear() + 1, 8, 28);
-    }
     const msPerDay = 24 * 60 * 60 * 1000;
     const daysLeft = Math.round((examDate - today) / msPerDay);
 
