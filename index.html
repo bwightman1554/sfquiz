@@ -249,6 +249,21 @@
     font-size: 0.95rem;
     line-height: 1.55;
   }
+  .countdown-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: var(--accent-tint);
+    border: 1px solid var(--accent);
+    color: var(--accent-dark);
+    font-weight: 700;
+    font-size: 0.9rem;
+    font-family: 'Source Serif 4', serif;
+  }
+  .countdown-pill.hidden { display: none; }
 
   .quiz-list {
     display: flex;
@@ -345,9 +360,42 @@
   <header class="top">
     <h1>Practice Exams</h1>
     <div class="sub">Pick a set to start practicing. Your progress in each quiz is saved separately.</div>
+    <div class="countdown-pill" id="countdown-pill"></div>
   </header>
 
   <div class="quiz-list">
+    <a class="quiz-card" href="2024_practice_exam.html">
+      <div class="quiz-card-main">
+        <h2>2024 Practice Exam</h2>
+        <p>76 questions · 76 with a keyed answer</p>
+      </div>
+      <div class="quiz-card-cta">Start →</div>
+    </a>
+
+    <a class="quiz-card" href="2022_practice_exam.html">
+      <div class="quiz-card-main">
+        <h2>2022 Practice Exam</h2>
+        <p>104 questions · 104 with a keyed answer</p>
+      </div>
+      <div class="quiz-card-cta">Start →</div>
+    </a>
+
+    <a class="quiz-card" href="2018_practice_exam.html">
+      <div class="quiz-card-main">
+        <h2>2018 Practice Exam</h2>
+        <p>136 questions · 136 with a keyed answer</p>
+      </div>
+      <div class="quiz-card-cta">Start →</div>
+    </a>
+
+    <a class="quiz-card" href="2017_practice_exam.html">
+      <div class="quiz-card-main">
+        <h2>2017 Practice Exam</h2>
+        <p>135 questions · 135 with a keyed answer</p>
+      </div>
+      <div class="quiz-card-cta">Start →</div>
+    </a>
+
     <a class="quiz-card" href="2015_practice_exam_a.html">
       <div class="quiz-card-main">
         <h2>2015 Practice Exam A</h2>
@@ -364,34 +412,10 @@
       <div class="quiz-card-cta">Start →</div>
     </a>
 
-    <a class="quiz-card" href="2017_practice_exam.html">
+    <a class="quiz-card" href="2008_practice_exam.html">
       <div class="quiz-card-main">
-        <h2>2017 Practice Exam</h2>
-        <p>135 questions · 135 with a keyed answer</p>
-      </div>
-      <div class="quiz-card-cta">Start →</div>
-    </a>
-
-    <a class="quiz-card" href="2018_practice_exam.html">
-      <div class="quiz-card-main">
-        <h2>2018 Practice Exam</h2>
-        <p>136 questions · 136 with a keyed answer</p>
-      </div>
-      <div class="quiz-card-cta">Start →</div>
-    </a>
-
-    <a class="quiz-card" href="2022_practice_exam.html">
-      <div class="quiz-card-main">
-        <h2>2022 Practice Exam</h2>
-        <p>104 questions · 104 with a keyed answer</p>
-      </div>
-      <div class="quiz-card-cta">Start →</div>
-    </a>
-
-    <a class="quiz-card" href="2024_practice_exam.html">
-      <div class="quiz-card-main">
-        <h2>2024 Practice Exam</h2>
-        <p>76 questions · 76 with a keyed answer</p>
+        <h2>2008 Practice Exam</h2>
+        <p>100 questions · 100 with a keyed answer</p>
       </div>
       <div class="quiz-card-cta">Start →</div>
     </a>
@@ -553,10 +577,42 @@
     footnoteEl.textContent = 'Last updated: ' + formatted;
   }
 
+  // Countdown to the exam date. Computed client-side from the visitor's
+  // own clock every time the page loads, rather than a fixed string, so
+  // it stays accurate no matter when this gets opened -- no need to
+  // hand-edit it as the date approaches. Compares calendar dates only
+  // (both sides at local midnight), not exact timestamps, so "T-1 day"
+  // reads correctly for the entire day before the exam rather than
+  // flipping partway through based on what hour it is.
+  function updateCountdown() {
+    const pill = document.getElementById('countdown-pill');
+    if (!pill) return;
+    const now = new Date();
+    let examDate = new Date(now.getFullYear(), 8, 28); // month is 0-indexed: 8 = September
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (examDate < today) {
+      // already passed this year -- assume next year's sitting
+      examDate = new Date(now.getFullYear() + 1, 8, 28);
+    }
+    const msPerDay = 24 * 60 * 60 * 1000;
+    const daysLeft = Math.round((examDate - today) / msPerDay);
+
+    if (daysLeft > 0) {
+      pill.textContent = '\u{1F4C5} T-' + daysLeft + ' day' + (daysLeft === 1 ? '' : 's') + ' until the exam (Sept 28)';
+    } else if (daysLeft === 0) {
+      pill.textContent = '\u{1F4C5} Exam day is today \u2014 good luck!';
+    } else {
+      pill.classList.add('hidden');
+      return;
+    }
+    pill.classList.remove('hidden');
+  }
+
   (async function init() {
     await loadSettings();
     initSettingsUI();
     updateLastUpdatedFootnote();
+    updateCountdown();
   })();
 })();
 </script>
